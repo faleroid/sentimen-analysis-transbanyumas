@@ -170,14 +170,32 @@ LinearSVC(
 
 ### 6.3 Naive Bayes + TF-IDF
 
-> ⚠️ **Cell belum dieksekusi** — hasil belum tersedia. Jalankan cell `nb-training` dan `nb-inference` di notebook untuk mendapatkan metrik.
+```text
+Accuracy Train : 93.09%
+Accuracy Test  : 88.71%
+```
+
+| Kelas | Precision | Recall | F1-Score | Support |
+|---|---|---|---|---|
+| Negatif (0) | 0.84 | 0.91 | 0.88 | 54 |
+| Positif (1) | 0.92 | 0.87 | 0.90 | 70 |
+| **Accuracy** | | | **0.89** | **124** |
+| Macro avg | 0.88 | 0.89 | 0.89 | 124 |
+| Weighted avg | 0.89 | 0.89 | 0.89 | 124 |
+
+**Confusion Matrix:**
+
+|  | Pred Negatif | Pred Positif |
+|---|---|---|
+| **Aktual Negatif** | 49 (TP) | 5 (FN) |
+| **Aktual Positif** | 9 (FP) | 61 (TN) |
 
 **Konfigurasi model:**
 ```python
 MultinomialNB()  # alpha=1.0 (Laplace smoothing default)
 ```
 
-**Ekspektasi:** Naive Bayes biasanya lebih cepat dan sederhana, namun asumsi independensi antar fitur menyebabkan performanya umumnya di bawah SVM untuk data TF-IDF. Kemungkinan accuracy test berkisar 80–85%.
+**Analisis:** Naive Bayes memberikan hasil yang sangat baik, menyamai akurasi test SVM (88.71%) namun dengan recall kelas negatif yang lebih tinggi (91% vs 83%). Gap train/test juga yang paling kecil (4.38%), menunjukkan model ini paling robust terhadap overfitting.
 
 ---
 
@@ -186,8 +204,8 @@ MultinomialNB()  # alpha=1.0 (Laplace smoothing default)
 | Model | Train Acc | Test Acc | F1 Macro | Recall Negatif | Gap Overfit |
 |---|---|---|---|---|---|
 | Random Forest | 90.45% | 85.48% | 0.85 | 76% | 4.97% |
-| **SVM (LinearSVC)** | **95.33%** | **88.71%** | **0.88** | **83%** | **6.62%** |
-| Naive Bayes | — | — | — | — | — |
+| **SVM (LinearSVC)** | 95.33% | **88.71%** | 0.88 | 83% | 6.62% |
+| **Naive Bayes** | **93.09%** | **88.71%** | **0.89** | **91%** | **4.38%** |
 
 ---
 
@@ -209,7 +227,7 @@ def clean_text(text):
 
 | Input | RF | SVM | NB |
 |---|---|---|---|
-| *"Sangat mengecewakan, kotor, jorok, rusak, panas tidak ada AC"* | NEGATIVE (73.3%) | NEGATIVE (-1.43) | — |
+| *"Sangat mengecewakan, kotor, jorok, rusak, panas tidak ada AC"* | NEGATIVE (73.3%) | NEGATIVE (-1.43) | NEGATIVE (96.7%) |
 
 **Catatan keterbatasan inference:** Model hanya mengenali kata-kata negatif yang ada dalam vocabulary training (38 sampel negatif asli). Kata negatif generik seperti *"jelek"*, *"lambat"*, *"buruk"* yang tidak muncul di corpus training tidak akan terdeteksi dengan baik.
 
@@ -232,7 +250,6 @@ def clean_text(text):
 | Prioritas | Rekomendasi |
 |---|---|
 | 🔴 Tinggi | Tambah data negatif yang lebih beragam (minimal 150+ sampel) |
-| 🔴 Tinggi | Jalankan cell Naive Bayes untuk melengkapi perbandingan |
 | 🟡 Sedang | Gunakan `StratifiedKFold` cross-validation untuk evaluasi lebih robust |
 | 🟡 Sedang | Pisahkan oversampling ke dalam training fold saja (hindari data leakage) |
 | 🟢 Rendah | Eksplorasi hyperparameter tuning SVM (`C`, kernel) |
@@ -242,6 +259,6 @@ def clean_text(text):
 
 ## 10. Kesimpulan
 
-**Model terbaik: SVM (LinearSVC) + TF-IDF** dengan test accuracy **88.71%** dan F1 macro **0.88**.
+**Model terbaik: Naive Bayes + TF-IDF** dengan test accuracy **88.71%**, F1 macro **0.89**, dan recall negatif tertinggi **91%**. Model ini mengungguli SVM karena gap overfit yang lebih kecil (4.38%).
 
 Model ini siap digunakan sebagai baseline, namun kinerjanya pada inferensi kata-kata negatif generik masih terbatas akibat sedikitnya data negatif dalam corpus training. Penambahan data negatif yang beragam adalah langkah paling penting untuk meningkatkan kualitas model secara keseluruhan.
